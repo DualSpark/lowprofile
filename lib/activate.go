@@ -1,13 +1,11 @@
 package lowprofile
 
 import (
-	"bufio"
 	"fmt"
 	"errors"
 	"github.com/DualSpark/lowprofile/Godeps/_workspace/src/github.com/codegangsta/cli"
 	"github.com/DualSpark/lowprofile/Godeps/_workspace/src/gopkg.in/mattes/go-expand-tilde.v1"
 	"os"
-	"regexp"
 )
 
 func BeforeActivateProfile(c *cli.Context) error {
@@ -40,46 +38,16 @@ func ActivateProfile(c *cli.Context) {
 
 	fmt.Printf("activating profile %s\n", profile)
 
-	var filename, err = checkForShell()
+	var filename, err = CheckForShell()
 
 	filename, err = tilde.Expand(filename)
 	if err != nil {
 		panic(err)
 	}
-	found, lines := scanFileForVariable(filename, profileVariable, profile)
+	found, lines := ScanFileForVariable(filename, ProfileVariable, profile)
 	if !found {
-		lines = append(lines, fmt.Sprintf("export %s=%s", profileVariable, profile))
+		lines = append(lines, fmt.Sprintf("export %s=%s", ProfileVariable, profile))
 	}
 
-	writeFile(filename, lines)
-}
-
-func scanFileForVariable(filename string, variable string, profile string) (bool, []string) {
-
-	file, err := os.Open(filename)
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-
-	var lines []string
-	found := false
-	regex := regexp.MustCompile(fmt.Sprintf("\\#*\\s*(export\\s+%s=).*", variable))
-	replace := fmt.Sprintf("${1}%s", profile)
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		text := scanner.Text()
-		if regex.MatchString(text) {
-			found = true
-			text = regex.ReplaceAllString(text, replace)
-		}
-		lines = append(lines, text)
-		Debugln(text)
-	}
-
-	if err := scanner.Err(); err != nil {
-		panic(err)
-	}
-
-	return found, lines
+	WriteFile(filename, lines)
 }

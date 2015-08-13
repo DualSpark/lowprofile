@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/DualSpark/lowprofile/Godeps/_workspace/src/github.com/codegangsta/cli"
 	"github.com/DualSpark/lowprofile/lib"
+	"github.com/DualSpark/lowprofile/lib/prompt"
 	"os"
 )
 
@@ -11,7 +12,8 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "lowprofile"
 	app.Usage = "Control AWS profiles"
-	app.Version = "0.1"
+	app.Version = "0.2"
+	app.Author = "Kelly Plummer <kelly@dualspark.com>"
 
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
@@ -61,6 +63,27 @@ func main() {
 			Usage:   `Deactivate the currently active AWS profile`,
 			Before:  lowprofile.BeforeDeactivateProfile,
 			Action:  lowprofile.DeactivateProfile,
+		},
+		// Prompt
+		{
+			Name:    "describe-prompt",
+			Usage:   `Describe the string prompt value using the active profile`,
+			Aliases: []string{"pp"},
+			Action:  prompt.DescribePrompt,
+		},
+		{
+			Name:    "activate-prompt",
+			Aliases: []string{"pap"},
+			Usage:   `Activate display of the currently active AWS profile in the prompt`,
+			Before:  prompt.BeforeActivatePrompt,
+			Action:  prompt.ActivatePrompt,
+		},
+		{
+			Name:    "deactivate-prompt",
+			Aliases: []string{"pdp"},
+			Usage:   `Deactivate display of the currently active AWS profile in the prompt`,
+			Before:  prompt.BeforeDeactivatePrompt,
+			Action:  prompt.DeactivatePrompt,
 		},
 	}
 

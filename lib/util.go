@@ -3,23 +3,30 @@ package lowprofile
 import (
   "os"
   "bufio"
+  "regexp"
   "fmt"
   "log"
   "strings"
   "errors"
 )
 
-const zsh  = "/bin/zsh"
-const zshrc = "~/.zshrc"
-const bash_profile = "~/.bash_profile"
-const bash = "/bin/bash"
-const profileVariable = "AWS_PROFILE"
+const zsh                 = "/bin/zsh"
+const zshrc               = "~/.zshrc"
+const zshPrompt         = "PROMPT"
+const bash_profile        = "~/.bash_profile"
+const bash                = "/bin/bash"
+const bashPrompt          = "PS1"
+const ProfileVariable     = "AWS_PROFILE"
+const dot_aws_credentials = "~/.aws/credentials"
 
-
-var Debug bool = false
+var Debug bool            = false
 
 func Shells() map[string]string {
   return map[string]string {bash: bash_profile, zsh: zshrc}
+}
+
+func Prompts() map[string]string {
+  return map[string]string {bash: bashPrompt, zsh: zshPrompt}
 }
 
 func Debugln(str string) {
@@ -35,7 +42,11 @@ func Debugf(str string, args ...interface{}) {
   }
 }
 
-func writeFile(filename string, lines []string) {
+func ActiveProfile() string {
+  return os.Getenv(ProfileVariable)
+}
+
+func WriteFile(filename string, lines []string) {
   file, err := os.OpenFile(filename, os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0644)
   if err != nil {
       log.Fatal(err)
@@ -52,7 +63,7 @@ func writeFile(filename string, lines []string) {
 	w.Flush()
 }
 
-func checkForShell()(string, error) {
+func CheckForShell()(string, error) {
 	Debugln("checking shell")
 	shell := os.Getenv("SHELL")
 	Debugf("the shell is %s", shell)
@@ -69,4 +80,65 @@ func checkForShell()(string, error) {
 	}
 
 	return filename, err
+}
+
+func ScanFileForVariable(filename string, variable string, value string) (bool, []string) {
+
+	file, err := os.Open(filename)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	var lines []string
+	found := false
+	regex := regexp.MustCompile(fmt.Sprintf("\\#*\\s*(export\\s+%s=).*", variable))
+	replace := fmt.Sprintf("export %s=%s",variable, value)
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		text := scanner.Text()
+		if regex.MatchString(text) {
+			found = true
+			text = replace
+		}
+		lines = append(lines, text)
+		Debugln(text)
+	}
+
+	if err := scanner.Err(); err != nil {
+		panic(err)
+	}
+
+	return found, lines
+}
+
+func ScanFileForVariableAndComment(filename string, variable string) (bool, []string) {
+
+	file, err := os.Open(filename)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	var lines []string
+	found := false
+
+	regex := regexp.MustCompile(fmt.Sprintf("\\#*\\s*(export\\s+%s=\\w*)", variable))
+	replace := "# ${1}"
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		text := scanner.Text()
+		if regex.MatchString(text) {
+			found = true
+			text = regex.ReplaceAllString(text, replace)
+		}
+		lines = append(lines, text)
+		Debugln(text)
+	}
+
+	if err := scanner.Err(); err != nil {
+		panic(err)
+	}
+
+	return found, lines
 }

@@ -14,7 +14,7 @@ var _ = Describe("TestSuite", func() {
 	var tmpDir string
 	var relTmpDir string
 
-	writeFile := func(folder string, filename string, content string, mode os.FileMode) {
+	CheckForShell := func(folder string, filename string, content string, mode os.FileMode) {
 		path := filepath.Join(tmpDir, folder)
 		err := os.MkdirAll(path, 0700)
 		Ω(err).ShouldNot(HaveOccurred())
@@ -35,24 +35,24 @@ var _ = Describe("TestSuite", func() {
 		Ω(err).ShouldNot(HaveOccurred())
 
 		//go files in the root directory (no tests)
-		writeFile("/", "main.go", "package main", 0666)
+		CheckForShell("/", "main.go", "package main", 0666)
 
 		//non-go files in a nested directory
-		writeFile("/redherring", "big_test.jpg", "package ginkgo", 0666)
+		CheckForShell("/redherring", "big_test.jpg", "package ginkgo", 0666)
 
 		//non-ginkgo tests in a nested directory
-		writeFile("/professorplum", "professorplum_test.go", `import "testing"`, 0666)
+		CheckForShell("/professorplum", "professorplum_test.go", `import "testing"`, 0666)
 
 		//ginkgo tests in a nested directory
-		writeFile("/colonelmustard", "colonelmustard_test.go", `import "github.com/onsi/ginkgo"`, 0666)
+		CheckForShell("/colonelmustard", "colonelmustard_test.go", `import "github.com/onsi/ginkgo"`, 0666)
 
 		//ginkgo tests in a deeply nested directory
-		writeFile("/colonelmustard/library", "library_test.go", `import "github.com/onsi/ginkgo"`, 0666)
+		CheckForShell("/colonelmustard/library", "library_test.go", `import "github.com/onsi/ginkgo"`, 0666)
 
 		//a precompiled ginkgo test
-		writeFile("/precompiled-dir", "precompiled.test", `fake-binary-file`, 0777)
-		writeFile("/precompiled-dir", "some-other-binary", `fake-binary-file`, 0777)
-		writeFile("/precompiled-dir", "nonexecutable.test", `fake-binary-file`, 0666)
+		CheckForShell("/precompiled-dir", "precompiled.test", `fake-binary-file`, 0777)
+		CheckForShell("/precompiled-dir", "some-other-binary", `fake-binary-file`, 0777)
+		CheckForShell("/precompiled-dir", "nonexecutable.test", `fake-binary-file`, 0666)
 	})
 
 	AfterEach(func() {

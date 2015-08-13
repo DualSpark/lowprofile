@@ -9,8 +9,7 @@ import (
 	"errors"
 )
 
-const AWS_PROFILE = "AWS_PROFILE"
-const dot_aws_credentials = "~/.aws/credentials"
+
 
 func BeforeDescribeProfiles(c *cli.Context) error {
 	var filename, _ = tilde.Expand(dot_aws_credentials)
@@ -36,8 +35,8 @@ func DescribeProfiles(c *cli.Context) {
 }
 
 func DescribeActiveProfile(c *cli.Context) {
-	Debugln("reading variable AWS_PROFILE")
-	profile := os.Getenv(AWS_PROFILE)
+	Debugln("reading variable ProfileVariable")
+	profile := ActiveProfile()
 	if len(profile) > 0 {
 		fmt.Printf("current profile is %s\n", profile)
 	} else {

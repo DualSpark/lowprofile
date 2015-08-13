@@ -1,20 +1,24 @@
 
 lowprofile(){
-
 	# run the magic command
-	lowprofile-0.1 "$@"
+	PS1=$PS1 ; lowprofile-0.2 "$@"
 
-  # remove the variable if we are deactivating
-	if [ "$1" = "dp" ] || [ "$1" = "deactive-profile" ]; then
-		unset AWS_PROFILE
-	fi
+	# refresh the shell if we are *activating
+	describes=("ap" "activate-profile" "dp" "deactivate-profile" "pap" "activate-prompt" "pdp" "deactivate-prompt")
+	for describe in ${describes[@]} ; do
+		if [[ "$describe" == "$1" || "$describe" == "$2"  ]] ; then
+			#clear the existing values
+			unset AWS_PROFILE
+			unset AWS_PROMPT_PREFIX
+			unset AWS_PROMPT_SUFFIX
 
-	# refresh the shell
-	if [ "$SHELL" = "/bin/bash" ] ; then
-		login="--login"
-	fi
-	exec $SHELL $login
-
+			if [ "$SHELL" = "/bin/bash" ] ; then
+				login="--login"
+			fi
+			exec $SHELL $login
+			return
+		fi
+	done
 }
 
 if [ "$SHELL" = "/bin/bash" ] ; then
