@@ -1,7 +1,7 @@
 
 lowprofile(){
 	# run the magic command
-	PS1=$PS1 ; lowprofile-0.2 "$@"
+	PROMPT=$PROMPT ; PS1=$PS1 ; lowprofile-0.2 "$@"
 
 	# refresh the shell if we are *activating
 	describes=("ap" "activate-profile" "dp" "deactivate-profile" "pap" "activate-prompt" "pdp" "deactivate-prompt")
