@@ -28,7 +28,8 @@ func BeforeActivatePrompt(c *cli.Context) error {
 }
 
 func ActivatePrompt(c *cli.Context) {
-	profile := "$(lowprofile pp)"
+	lowprofile_pp := "\"$(lowprofile pp) \""
+	profile := "${lowprofile_pp}"
 
 	fmt.Println("adding profile to prompt")
 
@@ -36,13 +37,21 @@ func ActivatePrompt(c *cli.Context) {
 	var promptVariable = lowprofile.Prompts()[os.Getenv("SHELL")]
 	var promptValue = os.Getenv(promptVariable)
 	lowprofile.Debugf("current %s is %s", promptVariable, promptValue)
-	var prompt = fmt.Sprintf("\"%s%s \"", promptValue, profile)
+	var prompt = fmt.Sprintf("\"%s%s\"", promptValue, profile)
 
 	filename, err = tilde.Expand(filename)
 	if err != nil {
 		panic(err)
 	}
-	found, lines := lowprofile.ScanFileForVariable(filename, promptVariable, prompt)
+
+
+	found, lines := lowprofile.ScanFileForVariable(filename, "lowprofile_pp", lowprofile_pp)
+	if !found {
+		lines = append(lines, fmt.Sprintf("export %s=%s", "lowprofile_pp", lowprofile_pp))
+	}
+	lowprofile.WriteFile(filename, lines)
+
+	found, lines = lowprofile.ScanFileForVariable(filename, promptVariable, prompt)
 	if !found {
 		lines = append(lines, fmt.Sprintf("export %s=%s", promptVariable, prompt))
 	}

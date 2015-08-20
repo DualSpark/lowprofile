@@ -28,7 +28,7 @@ func BeforeDeactivatePrompt(c *cli.Context) error {
 }
 
 func DeactivatePrompt(c *cli.Context) {
-	promptVariable := lowprofile.Prompts()[os.Getenv("SHELL")]
+	// promptVariable := lowprofile.Prompts()[os.Getenv("SHELL")]
 
 	fmt.Println("removing profile from prompt")
 
@@ -37,7 +37,7 @@ func DeactivatePrompt(c *cli.Context) {
 	if err != nil {
 		panic(err)
 	}
-	found, lines := lowprofile.ScanFileForVariableAndComment(filename, promptVariable)
+	found, lines := lowprofile.ScanFileForVariableAndComment(filename, "lowprofile_pp")
 	if found {
 		lowprofile.WriteFile(filename, lines)
 	}

@@ -90,6 +90,7 @@ func ScanFileForVariable(filename string, variable string, value string) (bool, 
 	}
 	defer file.Close()
 
+  var newlines = LinesInVariable(variable)
 	var lines []string
 	found := false
 	regex := regexp.MustCompile(fmt.Sprintf("\\#*\\s*(export\\s+%s=).*", variable))
@@ -97,11 +98,17 @@ func ScanFileForVariable(filename string, variable string, value string) (bool, 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		text := scanner.Text()
+
 		if regex.MatchString(text) {
 			found = true
 			text = replace
-		}
-		lines = append(lines, text)
+      lines = append(lines, text)
+		} else if found && newlines > 1 {
+      newlines--
+    } else {
+      lines = append(lines, text)
+    }
+
 		Debugln(text)
 	}
 
@@ -112,9 +119,15 @@ func ScanFileForVariable(filename string, variable string, value string) (bool, 
 	return found, lines
 }
 
+func LinesInVariable(variable string) int {
+	return len(strings.Split(os.Getenv(variable), "\n"))
+}
+
 func ScanFileForVariableAndComment(filename string, variable string) (bool, []string) {
 
-	file, err := os.Open(filename)
+  var newlines = LinesInVariable(variable)
+
+  file, err := os.Open(filename)
 	if err != nil {
 		panic(err)
 	}
@@ -122,12 +135,15 @@ func ScanFileForVariableAndComment(filename string, variable string) (bool, []st
 
 	var lines []string
 	found := false
-
-	regex := regexp.MustCompile(fmt.Sprintf("\\#*\\s*(export\\s+%s=\\w*)", variable))
+  regex := regexp.MustCompile(fmt.Sprintf("\\#*\\s*(export\\s+%s=\\w*)", variable))
 	replace := "# ${1}"
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		text := scanner.Text()
+    if found && newlines > 1 {
+      text = "# " + text
+      newlines--
+    }
 		if regex.MatchString(text) {
 			found = true
 			text = regex.ReplaceAllString(text, replace)

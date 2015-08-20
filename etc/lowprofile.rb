@@ -3,9 +3,9 @@ require "language/go"
 class Lowprofile < Formula
   desc "Simple profile management for AWS."
   homepage "https://github.com/DualSpark/lowprofile"
-  url "https://github.com/DualSpark/lowprofile/archive/9bb404054ddd743a37470c9e1a477d7c24bf3620.tar.gz"
+  url "https://github.com/DualSpark/lowprofile/archive/feature-promptly.tar.gz"
   version "0.2"
-  sha256 "64f83dd6282f371a55515d21b0eab853c9691f3c403949748fb38d3af604ed07"
+  sha256 "3e8082a3bb33145fe70112ab082d4664b457493fd1a40733a7fcee59aeb62678"
   depends_on "go" => :build
 
   go_resource "github.com/DualSpark/lowprofile" do
@@ -19,7 +19,7 @@ class Lowprofile < Formula
     system "go", "build", "-v", "-o", "./bin/lowprofile-#{version}", "main.go"
     bin.install "bin/lowprofile-#{version}"
 
-    rm "#{HOMEBREW_PREFIX}/etc/lowprofile"
+    rm "#{HOMEBREW_PREFIX}/etc/lowprofile" if File.exist?("#{HOMEBREW_PREFIX}/etc/lowprofile")
     etc.install "etc/lowprofile"
   end
 

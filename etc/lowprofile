@@ -1,7 +1,9 @@
 
 lowprofile(){
 	# run the magic command
-	PROMPT=$PROMPT ; PS1=$PS1 ; lowprofile-0.2 "$@"
+	export PROMPT=$PROMPT
+	export PS1=$PS1
+	lowprofile-0.2 "$@"
 
 	# refresh the shell if we are *activating
 	describes=("ap" "activate-profile" "dp" "deactivate-profile" "pap" "activate-prompt" "pdp" "deactivate-prompt")
@@ -11,7 +13,8 @@ lowprofile(){
 			unset AWS_PROFILE
 			unset AWS_PROMPT_PREFIX
 			unset AWS_PROMPT_SUFFIX
-
+			unset lowprofile_pp
+			
 			if [ "$SHELL" = "/bin/bash" ] ; then
 				login="--login"
 			fi

@@ -62,7 +62,7 @@ var _ = Describe("Activate", func() {
     It("should activate", func() {
         Expect(func(){ActivatePrompt(context)}).ShouldNot(Panic())
 				contents, _ := ioutil.ReadFile(profilePath)
-				Expect(strings.TrimSpace(string(contents))).To(Equal("export PS1=\"$(lowprofile pp) \""))
+				Expect(strings.TrimSpace(string(contents))).To(Equal("export lowprofile_pp=\"$(lowprofile pp) \"\nexport PS1=\"${lowprofile_pp}\""))
     })
 
 		It("should reactivate", func() {
@@ -70,7 +70,7 @@ var _ = Describe("Activate", func() {
 
 				Expect(func(){ActivatePrompt(context)}).ShouldNot(Panic())
 				contents, _ := ioutil.ReadFile(profilePath)
-				Expect(strings.TrimSpace(string(contents))).To(Equal("export PS1=\"$(lowprofile pp) \""))
+				Expect(strings.TrimSpace(string(contents))).To(Equal("export lowprofile_pp=\"$(lowprofile pp) \"\nexport PS1=\"${lowprofile_pp}\""))
 		})
 
 		It("should reactivate after deactivation", func() {
@@ -80,7 +80,7 @@ var _ = Describe("Activate", func() {
 				Expect(func(){DeactivatePrompt(context)}).ShouldNot(Panic())
 				Expect(func(){ActivatePrompt(context)}).ShouldNot(Panic())
 				contents, _ := ioutil.ReadFile(profilePath)
-				Expect(strings.TrimSpace(string(contents))).To(Equal("export PS1=\"$(lowprofile pp) \""))
+				Expect(strings.TrimSpace(string(contents))).To(Equal("export lowprofile_pp=\"$(lowprofile pp) \"\nexport PS1=\"${lowprofile_pp}\""))
 		})
 
 		AfterEach(func(){
@@ -107,14 +107,14 @@ var _ = Describe("Activate", func() {
 		It("should activate", func() {
 				Expect(func(){ActivatePrompt(context)}).ShouldNot(Panic())
 				contents, _ := ioutil.ReadFile(profilePath)
-				Expect(strings.TrimSpace(string(contents))).To(Equal("export PROMPT=\"$(lowprofile pp) \""))
+				Expect(strings.TrimSpace(string(contents))).To(Equal("export lowprofile_pp=\"$(lowprofile pp) \"\nexport PROMPT=\"${lowprofile_pp}\""))
 		})
 
 		It("should reactivate", func() {
 				os.Setenv(lowprofile.ProfileVariable, "some-other-profile")
 				Expect(func(){ActivatePrompt(context)}).ShouldNot(Panic())
 				contents, _ := ioutil.ReadFile(profilePath)
-				Expect(strings.TrimSpace(string(contents))).To(Equal("export PROMPT=\"$(lowprofile pp) \""))
+				Expect(strings.TrimSpace(string(contents))).To(Equal("export lowprofile_pp=\"$(lowprofile pp) \"\nexport PROMPT=\"${lowprofile_pp}\""))
 		})
 
 		It("should reactivate after deactivation", func() {
@@ -124,7 +124,7 @@ var _ = Describe("Activate", func() {
 				Expect(func(){DeactivatePrompt(context)}).ShouldNot(Panic())
 				Expect(func(){ActivatePrompt(context)}).ShouldNot(Panic())
 				contents, _ := ioutil.ReadFile(profilePath)
-				Expect(strings.TrimSpace(string(contents))).To(Equal("export PROMPT=\"$(lowprofile pp) \""))
+				Expect(strings.TrimSpace(string(contents))).To(Equal("export lowprofile_pp=\"$(lowprofile pp) \"\nexport PROMPT=\"${lowprofile_pp}\""))
 		})
 
 		AfterEach(func(){
